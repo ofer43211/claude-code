@@ -11,6 +11,8 @@ yarn.lock
 tests/tmp/
 test-results/
 coverage/
+.coverage/
+.benchmarks/
 
 # IDE
 .vscode/
