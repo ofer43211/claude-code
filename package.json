@@ -1,0 +1,27 @@
+{
+  "name": "claude-code-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Claude Code infrastructure",
+  "scripts": {
+    "test": "npm run test:lint && npm run test:bats",
+    "test:lint": "shellcheck .devcontainer/*.sh",
+    "test:bats": "bats tests/**/*.bats",
+    "test:actions": "act -l",
+    "test:watch": "nodemon --exec 'npm test' --watch tests --watch .devcontainer --watch .github",
+    "lint": "npm run lint:shell && npm run lint:actions",
+    "lint:shell": "shellcheck .devcontainer/*.sh",
+    "lint:actions": "actionlint .github/workflows/*.yml"
+  },
+  "devDependencies": {
+    "bats": "^1.10.0",
+    "nodemon": "^3.0.0"
+  },
+  "keywords": [
+    "testing",
+    "github-actions",
+    "bash",
+    "infrastructure"
+  ],
+  "author": "Anthropic",
+  "license": "MIT"
+}

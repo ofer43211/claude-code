@@ -33,6 +33,20 @@ Some of its key capabilities include:
 
 4. Complete the one-time OAuth process with your Claude Max or Anthropic Console account.
 
+## Testing
+
+This repository includes a comprehensive test suite with 117+ automated tests covering bash scripts, GitHub Actions, and workflows.
+
+```sh
+# Install test dependencies
+bash scripts/setup-tests.sh
+
+# Run all tests
+npm test
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
+
 ### Reporting Bugs
 
 We welcome feedback during this beta period. Use the `/bug` command to report issues directly within Claude Code, or file a [GitHub issue](https://github.com/anthropics/claude-code/issues).
