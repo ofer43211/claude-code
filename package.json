@@ -1,0 +1,30 @@
+{
+  "name": "@anthropic-ai/claude-code-tests",
+  "version": "1.0.0",
+  "description": "Test suite for Claude Code repository",
+  "scripts": {
+    "test": "bats tests/**/*.bats",
+    "test:unit": "bats tests/unit/**/*.bats",
+    "test:integration": "bats tests/integration/**/*.bats",
+    "test:shellcheck": "shellcheck .devcontainer/*.sh tests/**/*.sh",
+    "test:actionlint": "actionlint .github/workflows/*.yml",
+    "test:all": "npm run test:shellcheck && npm run test:actionlint && npm run test",
+    "lint": "npm run test:shellcheck && npm run test:actionlint"
+  },
+  "devDependencies": {
+    "bats": "^1.10.0",
+    "shellcheck": "^2.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/claude-code.git"
+  },
+  "keywords": [
+    "testing",
+    "bats",
+    "shell",
+    "github-actions"
+  ],
+  "author": "Anthropic",
+  "license": "MIT"
+}

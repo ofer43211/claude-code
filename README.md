@@ -37,6 +37,18 @@ Some of its key capabilities include:
 
 We welcome feedback during this beta period. Use the `/bug` command to report issues directly within Claude Code, or file a [GitHub issue](https://github.com/anthropics/claude-code/issues).
 
+## Testing
+
+This repository includes a comprehensive test suite. See [TESTING.md](TESTING.md) for details.
+
+```sh
+# Quick start
+cd tests && ./setup-bats.sh
+npm test
+```
+
+Test coverage: 170+ tests across unit, integration, and validation suites.
+
 ### Data collection, usage, and retention
 
 When you use Claude Code, we collect feedback, which includes usage data (such as code acceptance or rejections), associated conversation data, and user feedback submitted via the `/bug` command.
