@@ -1,4 +1,4 @@
-# Testing Guide
+# Testing Guide 🚀
 
 ## Quick Start
 
@@ -13,8 +13,17 @@ npm test
 # Or run specific test suites
 npm run test:unit           # Unit tests only
 npm run test:integration    # Integration tests only
+npm run test:parallel       # Parallel execution (3-4x faster!)
+npm run test:watch          # Watch mode for development
 npm run test:shellcheck     # Shell script linting
 npm run test:actionlint     # GitHub Actions validation
+
+# Advanced features
+npm run coverage            # Generate coverage report
+npm run analytics           # View test analytics
+npm run benchmark           # Performance benchmarks
+npm run test:mutation       # Mutation testing
+npm run test:docker         # Run in Docker environment
 ```
 
 ## Test Coverage Summary
@@ -245,4 +254,30 @@ We welcome test contributions! When adding tests:
 4. Include both positive and negative cases
 5. Add fixtures for new external dependencies
 
-Happy testing! 🧪
+## 🚀 Advanced Features
+
+For advanced testing capabilities, see [tests/ADVANCED.md](tests/ADVANCED.md):
+
+- **Parallel Execution**: 3-4x faster test runs
+- **Watch Mode**: Continuous testing during development
+- **Coverage Reports**: HTML dashboards with metrics
+- **Performance Benchmarks**: Measure script performance
+- **Mutation Testing**: Validate test quality
+- **Test Analytics**: Comprehensive metrics dashboard
+- **Docker Testing**: Isolated test environments
+- **Matrix Testing**: Multi-OS/environment validation
+- **Pre-commit Hooks**: Automatic quality checks
+
+```bash
+# Example: Run tests in watch mode
+npm run test:watch
+
+# Example: Generate coverage report
+npm run coverage
+open coverage/index.html
+
+# Example: Run parallel tests (4x faster)
+npm run test:parallel
+```
+
+Happy testing! 🧪🚀
