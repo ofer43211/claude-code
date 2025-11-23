@@ -1,36 +1,43 @@
-# Node
+ claude/analyze-test-coverage-01KBZmFsE9Bk53MkTuzyk4AQ
+# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+yarn.lock
 
 # Test artifacts
-*.log
-*.bak
-*.backup
-tests/**/*.tmp
+*.bats.tmp
 tests/tmp/
-*.test-output
+test-results/
+coverage/
+.coverage/
+.benchmarks/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# IDEs
-.idea/
-.vscode/settings.json
-*.swp
-*.swo
-*~
+# Logs
+*.log
+logs/
 
 # Environment
 .env
 .env.local
-.env.*.local
 
-# Build artifacts
-dist/
-build/
-coverage/
-*.tgz
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+.DS_Store
+ main

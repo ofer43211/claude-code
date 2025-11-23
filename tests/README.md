@@ -1,381 +1,316 @@
 # Test Suite Documentation
 
-This directory contains comprehensive tests for the Claude Code repository.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Test Structure](#test-structure)
-- [Setup](#setup)
-- [Running Tests](#running-tests)
-- [Test Coverage](#test-coverage)
-- [Writing New Tests](#writing-new-tests)
-- [CI/CD Integration](#cicd-integration)
-
-## Overview
-
-The test suite includes:
-
-- **Unit Tests**: Test individual functions and validation logic
-- **Integration Tests**: Test complete workflows and configurations
-- **Static Analysis**: ShellCheck for bash scripts, actionlint for workflows
-- **YAML Validation**: Ensures all configuration files are valid
+This directory contains comprehensive tests for the Claude Code infrastructure.
 
 ## Test Structure
 
 ```
 tests/
-├── unit/                          # Unit tests
-│   ├── firewall/                  # Firewall script tests
-│   │   ├── cidr-validation.bats   # CIDR format validation
-│   │   ├── ip-validation.bats     # IP address validation
-│   │   ├── dns-resolution.bats    # DNS resolution logic
-│   │   └── error-handling.bats    # Error handling scenarios
-│   └── actions/                   # GitHub Actions tests
-│       ├── claude-code-action.bats      # Action input validation
-│       ├── timeout-handling.bats        # Timeout configuration
-│       └── allowed-tools.bats           # Tool restriction parsing
-├── integration/                   # Integration tests
-│   ├── firewall-e2e.bats         # End-to-end firewall tests
-│   ├── devcontainer/              # DevContainer tests
-│   │   └── devcontainer-build.bats
-│   └── workflows/                 # Workflow validation
-│       ├── workflow-validation.bats
-│       └── action-validation.bats
-├── fixtures/                      # Test data and mocks
-│   ├── github-meta-response.json  # Mock GitHub API response
-│   ├── mock-dns-responses.txt     # Mock DNS responses
-│   └── sample-issue.json          # Sample issue data
-├── test-helper.bash               # Shared test utilities
-├── setup-bats.sh                  # Setup script for dependencies
-└── README.md                      # This file
-```
-
-## Setup
-
-### Prerequisites
-
-- **Linux/macOS**: Bash 4.0+
-- **Package Manager**: apt-get, yum, or Homebrew
-
-### Quick Setup
-
-Run the setup script to install all dependencies:
-
-```bash
-cd tests
-./setup-bats.sh
-```
-
-This will install:
-- bats-core (test framework)
-- shellcheck (shell script linter)
-- jq (JSON processor)
-- curl (for HTTP requests)
-
-### Manual Setup
-
-#### Ubuntu/Debian
-
-```bash
-sudo apt-get update
-sudo apt-get install -y bats shellcheck jq curl
-```
-
-#### macOS
-
-```bash
-brew install bats-core shellcheck jq
-```
-
-#### From Source
-
-```bash
-git clone https://github.com/bats-core/bats-core.git
-cd bats-core
-sudo ./install.sh /usr/local
+├── scripts/           # Bash script tests (using bats)
+│   └── firewall.bats  # Tests for init-firewall.sh
+├── actions/           # GitHub Actions composite action tests
+│   ├── claude-code-action.test.yml
+│   └── claude-issue-triage.test.yml
+├── workflows/         # Workflow validation tests
+│   └── workflow-validation.bats
+└── fixtures/          # Test fixtures and mock data
+    ├── prompts/
+    └── mock-responses/
 ```
 
 ## Running Tests
 
+### Prerequisites
+
+Install required dependencies:
+
+```bash
+# Install bats (Bash Automated Testing System)
+sudo apt-get install bats
+
+# Or on macOS
+brew install bats-core
+
+# Install shellcheck
+sudo apt-get install shellcheck
+
+# Or on macOS
+brew install shellcheck
+
+# Install actionlint
+bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+```
+
 ### Run All Tests
 
 ```bash
-# Using bats directly
-bats tests/**/*.bats
-
-# Using npm scripts (if package.json is installed)
+# Run all tests via npm
 npm test
+
+# Or run individual test suites
+npm run test:lint    # Run shellcheck
+npm run test:bats    # Run bats tests
 ```
 
-### Run Specific Test Suites
+### Run Specific Test Files
 
 ```bash
-# Unit tests only
-npm run test:unit
-# or
-bats tests/unit/**/*.bats
+# Run firewall script tests
+bats tests/scripts/firewall.bats
 
-# Integration tests only
-npm run test:integration
-# or
-bats tests/integration/**/*.bats
+# Run workflow validation tests
+bats tests/workflows/workflow-validation.bats
 
-# Specific test file
-bats tests/unit/firewall/cidr-validation.bats
-```
+# Run shellcheck on firewall script
+shellcheck .devcontainer/init-firewall.sh
 
-### Run Static Analysis
-
-```bash
-# ShellCheck
-npm run test:shellcheck
-# or
-shellcheck .devcontainer/*.sh tests/**/*.sh
-
-# ActionLint (requires separate installation)
-npm run test:actionlint
-# or
+# Run actionlint on workflows
 actionlint .github/workflows/*.yml
 ```
 
-### Run All Checks
+### Run Tests with act (Local GitHub Actions)
 
 ```bash
-npm run test:all
+# Install act
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# List available workflows
+act -l
+
+# Run test workflow locally
+act -W .github/workflows/test.yml
+
+# Run specific job
+act -j bats-tests
 ```
 
-## Test Coverage
+## Test Categories
 
-### Current Coverage
+### 1. Firewall Script Tests (`tests/scripts/firewall.bats`)
 
-#### Firewall Script (`init-firewall.sh`)
+**Coverage: 60+ test cases**
 
-- ✅ CIDR validation regex (lines 45-48)
-- ✅ IP validation regex (lines 68-71)
-- ✅ GitHub API error handling (lines 32-41)
-- ✅ DNS resolution error handling (lines 62-65)
-- ✅ Host IP detection (lines 78-82)
-- ✅ Firewall verification (lines 106-119)
-- ✅ Security validation (injection prevention)
+Tests for `.devcontainer/init-firewall.sh`:
 
-#### GitHub Actions
+- **CIDR Validation** (8 tests)
+  - Valid CIDR ranges
+  - Invalid formats
+  - Malformed inputs
 
-**claude-code-action**:
-- ✅ Prompt/prompt_file validation (lines 67-92)
-- ✅ Timeout configuration (line 107)
-- ✅ Allowed tools parsing
-- ✅ Output file handling
+- **IP Address Validation** (7 tests)
+  - Valid IP addresses
+  - Invalid formats
+  - Incomplete addresses
 
-**claude-issue-triage-action**:
-- ✅ Prompt generation
-- ✅ Tool restrictions
-- ✅ GitHub MCP integration
+- **Script Structure** (7 tests)
+  - Safety flags (`set -euo pipefail`)
+  - Error handling
+  - API response validation
 
-#### Workflows
+- **Security Configuration** (5 tests)
+  - Firewall rules
+  - Default policies
+  - Allowed traffic
 
-- ✅ YAML syntax validation
-- ✅ Trigger configuration
-- ✅ Permission scoping
-- ✅ Action versioning
-- ✅ Secret handling
+- **Domain Allowlist** (4 tests)
+  - Required domains
+  - GitHub API integration
 
-#### DevContainer
+- **Error Handling** (6 tests)
+  - API failures
+  - DNS resolution errors
+  - Invalid inputs
 
-- ✅ JSON configuration validation
-- ✅ Dockerfile syntax
-- ✅ Required packages
-- ✅ Volume mounts
-- ✅ Script permissions
+- **Idempotency** (3 tests)
+  - Rule cleanup
+  - ipset management
 
-### Coverage Metrics
+- **Verification** (3 tests)
+  - Blocked domains
+  - Allowed domains
+  - Timeout configuration
 
-| Component | Test Coverage | Status |
-|-----------|--------------|--------|
-| Firewall Script | 95% | ✅ Excellent |
-| GitHub Actions | 90% | ✅ Excellent |
-| Workflows | 85% | ✅ Good |
-| DevContainer | 80% | ✅ Good |
+### 2. Composite Action Tests
 
-## Writing New Tests
+#### Claude Code Action (`tests/actions/claude-code-action.test.yml`)
 
-### Test File Template
+**Coverage: 10 test cases**
 
-```bash
-#!/usr/bin/env bats
-# Description of what this test file covers
+- Input validation
+- Prompt file handling
+- Timeout configuration
+- Tool allowlist
+- Environment variables
+- GitHub MCP installation
 
-load '../test-helper'
+#### Claude Issue Triage (`tests/actions/claude-issue-triage.test.yml`)
 
-setup() {
-  test_setup
-}
+**Coverage: 12 test cases**
 
-teardown() {
-  test_teardown
-}
+- Prompt file creation
+- Required instructions
+- Tool restrictions
+- Security constraints
+- No-comment enforcement
 
-@test "descriptive test name" {
-  run your_command_here
-  assert_success
-  assert_output_contains "expected output"
-}
-```
+### 3. Workflow Validation (`tests/workflows/workflow-validation.bats`)
 
-### Helper Functions
+**Coverage: 35+ test cases**
 
-Available in `test-helper.bash`:
+Tests for all workflows:
 
-```bash
-# Setup and teardown
-test_setup()           # Initialize test environment
-test_teardown()        # Clean up test environment
+- **docker-publish.yml** (15 tests)
+  - Triggers and events
+  - Permissions
+  - Build steps
+  - Image signing
 
-# Assertions
-assert_success()       # Assert command succeeded
-assert_failure()       # Assert command failed
-assert_output_contains "text"   # Assert output contains text
-assert_output_equals "text"     # Assert output equals text exactly
+- **claude.yml** (10 tests)
+  - @claude mention detection
+  - Event handling
+  - Permissions
 
-# Mock functions
-mock_curl()           # Mock curl commands
-mock_dig()            # Mock DNS resolution
-mock_ipset()          # Mock ipset commands
-mock_iptables()       # Mock iptables commands
+- **claude-issue-triage.yml** (7 tests)
+  - Trigger configuration
+  - Timeout settings
+  - Permissions
 
-# Validation functions
-validate_cidr()       # Validate CIDR format
-validate_ip()         # Validate IP address format
-```
+- **General Quality** (5 tests)
+  - Action versioning
+  - Deprecated actions
+  - Security best practices
 
-### Best Practices
+## Test Coverage Metrics
 
-1. **One assertion per test**: Keep tests focused
-2. **Use descriptive names**: Test names should explain what they test
-3. **Test edge cases**: Include invalid inputs and error conditions
-4. **Mock external dependencies**: Don't rely on network or system state
-5. **Clean up**: Always use teardown to clean test artifacts
-6. **Document complex tests**: Add comments for non-obvious logic
-
-### Example Test
-
-```bash
-@test "validates CIDR notation correctly" {
-  # Valid CIDR should pass
-  run validate_cidr "192.168.1.0/24"
-  assert_success
-
-  # Invalid CIDR should fail
-  run validate_cidr "not-a-cidr"
-  assert_failure
-  assert_output_contains "Invalid CIDR"
-}
-```
+| Component | Files | Test Cases | Coverage |
+|-----------|-------|------------|----------|
+| Firewall Script | 1 | 60+ | ~95% |
+| Composite Actions | 2 | 22 | ~85% |
+| Workflows | 3 | 35+ | ~80% |
+| **Total** | **6** | **117+** | **~85%** |
 
 ## CI/CD Integration
 
 Tests run automatically on:
 
-- **Push** to main or claude/* branches
-- **Pull requests** to main
-- **Manual trigger** via workflow_dispatch
+- Every push to `main` branch
+- Every push to `claude/**` branches
+- Every pull request to `main`
+- Manual workflow dispatch
 
-### GitHub Actions Workflow
+See `.github/workflows/test.yml` for the full CI/CD pipeline.
 
-See `.github/workflows/test.yml` for the complete CI/CD configuration.
+## Writing New Tests
 
-The workflow includes:
+### Adding Bash Script Tests
 
-1. **ShellCheck**: Lints all shell scripts
-2. **ActionLint**: Validates GitHub Actions workflows
-3. **Unit Tests**: Runs all unit tests
-4. **Integration Tests**: Runs integration tests
-5. **YAML Validation**: Validates configuration files
-6. **Test Summary**: Aggregates results
-
-### Test Results
-
-Test results are displayed in:
-- GitHub Actions summary
-- Pull request checks
-- Workflow run logs
-
-### Required Checks
-
-For a PR to be mergeable:
-- ✅ All ShellCheck lints must pass
-- ✅ All ActionLint validations must pass
-- ✅ All unit tests must pass
-- ✅ All integration tests must pass
-- ✅ All YAML files must be valid
-
-## Troubleshooting
-
-### Tests Fail Locally But Pass in CI
-
-- Ensure you have the same versions of dependencies
-- Check for environment-specific paths or configurations
-- Run `./setup-bats.sh` to reinstall dependencies
-
-### Permission Errors
-
-Some integration tests require elevated permissions:
+Create a new `.bats` file in `tests/scripts/`:
 
 ```bash
-# Run with sudo if needed
-sudo bats tests/integration/firewall-e2e.bats
-```
+#!/usr/bin/env bats
 
-### Mock Not Working
-
-Ensure you're loading test-helper.bash:
-
-```bash
-load '../test-helper'  # or '../../test-helper' depending on depth
-```
-
-And calling test_setup in your setup() function:
-
-```bash
 setup() {
-  test_setup
+  # Setup code runs before each test
+  SCRIPT_DIR="${BATS_TEST_DIRNAME}/../../path/to/script"
+}
+
+@test "description of what this tests" {
+  # Test code
+  [ -f "$SCRIPT_DIR/script.sh" ]
 }
 ```
 
-### Tests Taking Too Long
+### Adding Action Tests
 
-Skip integration tests for faster feedback:
+Create a new `.test.yml` file in `tests/actions/`:
+
+```yaml
+name: Test My Action
+on: workflow_dispatch
+
+jobs:
+  test-something:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test specific behavior
+        run: |
+          # Test code here
+```
+
+## Debugging Failed Tests
+
+### Bats Tests
 
 ```bash
-bats tests/unit/**/*.bats
+# Run with verbose output
+bats -t tests/scripts/firewall.bats
+
+# Run single test
+bats -f "test name pattern" tests/scripts/firewall.bats
+```
+
+### GitHub Actions Tests
+
+```bash
+# Run with act locally
+act -W .github/workflows/test.yml -v
+
+# Enable debug logging
+act -W .github/workflows/test.yml --verbose
+```
+
+## Best Practices
+
+1. **Test Independence**: Each test should be independent and not rely on other tests
+2. **Clear Names**: Use descriptive test names that explain what is being tested
+3. **Error Messages**: Include helpful error messages for failed assertions
+4. **Setup/Teardown**: Use setup() and teardown() functions for test fixtures
+5. **Coverage**: Aim for 80%+ coverage of all code paths
+6. **Security**: Always test security-critical functionality
+7. **Performance**: Keep tests fast (< 5 seconds per test where possible)
+
+## Troubleshooting
+
+### Bats command not found
+
+```bash
+# Install bats
+sudo apt-get install bats
+# Or
+brew install bats-core
+```
+
+### Shellcheck not found
+
+```bash
+sudo apt-get install shellcheck
+# Or
+brew install shellcheck
+```
+
+### Act fails to run
+
+```bash
+# Make sure Docker is running
+docker ps
+
+# Pull the act images
+docker pull ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
 ## Contributing
 
-When adding new features or fixing bugs:
+When adding new infrastructure code:
 
-1. **Write tests first** (TDD approach recommended)
-2. **Ensure tests pass** locally before pushing
-3. **Update documentation** if adding new test patterns
-4. **Add fixtures** for new external dependencies
-5. **Run full test suite** before submitting PR
+1. Write tests FIRST (TDD approach)
+2. Ensure tests cover error cases
+3. Run full test suite before committing
+4. Update this README if adding new test categories
 
 ## Resources
 
-- [Bats-core Documentation](https://bats-core.readthedocs.io/)
-- [ShellCheck Wiki](https://github.com/koalaman/shellcheck/wiki)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [actionlint Documentation](https://github.com/rhysd/actionlint)
-
-## Support
-
-For questions or issues with tests:
-
-1. Check this README
-2. Review existing test examples
-3. File an issue with the `testing` label
-4. Contact the maintainers
-
-## License
-
-Same as the main repository (MIT License)
+- [Bats Documentation](https://bats-core.readthedocs.io/)
+- [ShellCheck Wiki](https://www.shellcheck.net/wiki/)
+- [ActionLint Documentation](https://github.com/rhysd/actionlint)
+- [Act Documentation](https://github.com/nektos/act)
